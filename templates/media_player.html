@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Media Player</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='media_player/style.css') }}">
+</head>
+<body>
+  <div class="center-box">
+    <h2>Media Player</h2>
+
+    {% if folder == 'images' %}
+      <img src="{{ url_for('media_file', folder=folder, filename=filename) }}" class="media-content">
+    {% elif folder == 'video' %}
+      <video controls autoplay class="media-content">
+        <source src="{{ url_for('media_file', folder=folder, filename=filename) }}">
+      </video>
+    {% elif folder == 'audio' %}
+      <audio controls autoplay class="media-content">
+        <source src="{{ url_for('media_file', folder=folder, filename=filename) }}">
+      </audio>
+    {% endif %}
+
+    <div class="nav-links">
+      <a href="{{ url_for('gallery') }}">Back to Gallery</a>
+      <a href="{{ url_for('main_page') }}">Back to Home</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </div>
+</body>
+</html>

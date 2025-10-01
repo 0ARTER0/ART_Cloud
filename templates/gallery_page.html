@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gallery</title>
+  <link rel="stylesheet" tepe="text/css" href="../static/gallery_page/style.css">
+  <script src="../static/gallery_page/script.js"></script>
+</head>
+<body>
+  <div class="toolbar">
+    <button id="menuBtn" onclick="toggleMenu()">
+      <img src="{{ url_for('static', filename='gallery/icons/settings.png') }}" alt="menu" width="20">
+    </button>
+    <div class="popup" id="popupMenu">
+      <a href="{{ url_for('logout') }}">Logout</a>
+      <a href="{{ url_for('main_page') }}">Back to Home</a>
+    </div>
+  </div>
+  <div class="content">
+    <div class="filter">
+      <h3>Filter</h3>
+      <p><a href="{{ url_for('gallery', filter='images') }}">Images</a></p>
+      <p><a href="{{ url_for('gallery', filter='video') }}">Videos</a></p>
+      <p><a href="{{ url_for('gallery', filter='audio') }}">Audios</a></p>
+      <h3>Size</h3>
+      <select id="sizeFilter" onchange="changeSize()">
+        <option value="normal">Normal</option>
+        <option value="medium">Medium</option>
+        <option value="large">Large</option>
+        <option value="original">Original</option>
+      </select>
+    </div>
+    <div class="main">
+      {% if images %}
+        <h3>Images</h3>
+        {% for img in images %}
+          <div class="media-item">
+            <a href="{{ url_for('media_player', folder='images', filename=img) }}">
+              <img src="{{ url_for('media_file', folder='images', filename=img) }}" class="normal">
+            </a>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% if videos %}
+        <h3>Videos</h3>
+        {% for vid in videos %}
+          <div class="media-item">
+            <a href="{{ url_for('media_player', folder='video', filename=vid) }}">
+              <video src="{{ url_for('media_file', folder='video', filename=vid) }}" class="normal"></video>
+            </a>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% if audios %}
+        <h3>Audios</h3>
+        {% for aud in audios %}
+          <div class="media-item">
+            <a href="{{ url_for('media_player', folder='audio', filename=aud) }}">
+              🎵 {{ aud }}
+            </a>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

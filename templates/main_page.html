@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Home</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='main_page/style.css') }}">
+  <script src="{{ url_for('static', filename='main_page/script.js') }}"></script>
+</head>
+<body>
+  <div class="center-box">
+    <h2>Home Menu</h2>
+    <a href="{{ url_for('gallery') }}">📂 Gallery</a>
+    <a href="{{ url_for('logout') }}">🚪 Logout</a>
+  </div>
+</body>
+</html>
