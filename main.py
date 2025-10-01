@@ -1,135 +1,193 @@
+###Imports ###
 import os
 import readline
 import subprocess
+import json
 from pathlib import Path
 from getpass import getpass
+### --end ###
 
-passwd_path = Path("passwd")
-proc = None
+### Variables ###
+cloud_proc = None
 
-folders = ["media", "media/video", "media/images", "media/audio"]
+config_path = Path('config.json')
 
-def passwd_F():
-    print("password maker")
+folders = ["music", "video", "images", "files"]
+## --end ###
+
+### Tasks ###
+def setup():
+    print("configure setup", f"you need to make somewhere folder with name 'media' and in this folder you need to make a {folders} or make after setup by command", sep=os.linesep)
+    work_path = input("Enter folder for media: ").strip()
+    port = input("set port(if you want default type 5000): ")
     while True:
-        print("type password", "len(your_password) > 8", sep=os.linesep)
-        fir_passwd = getpass(": ")
+        password = getpass("password (bigger that len(urpassword) <= 8): ").strip()
+        if len(password) > 8:
+            password_sec = getpass("you need enter password twice: ")
+            if password_sec == password:
+                config = {
+                    "work_path": work_path,
+                    "password": password,
+                }
 
-        if len(fir_passwd) > 8:
-            print("type same password again")
-            sec_passwd = getpass(": ")
-
-            if sec_passwd == fir_passwd:
-                with open("passwd", "w", encoding="utf-8") as f:
-                    f.write(fir_passwd)
+                with open("config.json", "w") as f:
+                    json.dump(config, f, indent=4)
                     f.close()
-                print("done", "you make password", sep=os.linesep)
+                
+                if config_path.exists():
+                    print("You done!")
+                    return
+            else:
+                print("password not same!!! Do Again")
+        else:
+            print("Password must be bigger that len(urpassword) <= 8")
+
+def passwd():
+    print("Password changer")
+    with open(config_path, "r") as f:
+        try:
+            conf = json.load(f)
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            return
+
+    while True:
+        print("Type new password (len > 8):")
+        fir_passwd = getpass(": ").strip()
+        if len(fir_passwd) > 8:
+            print("Type same password again:")
+            sec_passwd = getpass(": ").strip()
+            if sec_passwd == fir_passwd:
+                conf["password"] = fir_passwd
+                try:
+                    with open(config_path, "w") as f:
+                        json.dump(conf, f, indent=4)
+                    print("Done! Password changed.")
+                except Exception as e:
+                    print(f"Error saving config: {e}")
                 return
             else:
-                continue
+                print("Passwords do not match! Try again.")
         else:
-            continue
+            print("Password must be longer than 8 characters.")
 
-def sart_server_F():
-    global proc
-    if proc is None or proc.poll() is not None:
-        proc = subprocess.Popen(
-            ["python", "app.py"],
-            stdout=open("server.log", "w", encoding="utf-8", buffering=1),
-            stderr=subprocess.STDOUT,
-            text=None
-        )
-        print("server is started")
+
+def cloud_start():
+    global cloud_proc
+    if cloud_proc and cloud_proc.poll() is None:
+        cloud_proc.terminate()
+        print("cloud is topped")
     else:
-        print("server is started already")
+        print("cloud is not running")
 
-def stop_server_F():
-    global proc
-    if proc and proc.poll() is None:
-        proc.terminate()
-        print("server is topped")
+def cloud_stop():
+    global cloud_proc
+    if cloud_proc and cloud_proc.poll() is None:
+        cloud_proc.terminate()
+        print("cloud is topped")
     else:
-        print("server is not running")
+        print("cloud is not running")
 
-def status_server_F():
-    global proc
-    if proc and proc.poll() is None:
-        print("server is running")
+def cloud_status():
+    global cloud_proc
+    if cloud_proc and cloud_proc.poll() is None:
+        print("cloud is running")
     else:
-        print("server is not running")
+        print("cloud is not running")
 
-def file_check_F():
-    for i in folders:
-        if Path(i).exists():
-            print(i, ": Exist")
+
+def folder_checker():
+    if not config_path.exists():
+        print("No config file found! Run setup first.")
+        return
+    with open(config_path, "r") as f:
+        try:
+            conf = json.load(f)
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            return
+    work_path = conf.get("work_path")
+    if not work_path:
+        print("No work_path in config!")
+        return
+    all_exist = True
+    for folder in folders:
+        folder_path = os.path.join(work_path, folder)
+        if not os.path.isdir(folder_path):
+            print(f"Missing folder: {folder_path}")
+            all_exist = False
         else:
-            print(i, ": Not exist")
+            print(f"Exists: {folder_path}")
+    if all_exist:
+        print("All required folders exist.")
+    else:
+        print("Some required folders are missing.")
 
-def file_restore_F():
-    for i in folders:
-        if not Path(i).exists():
-            print(f"{i} : not exist", "restoring", sep=os.linesep)
-            os.mkdir(i)
-            if Path(i).exists():
-                print(i, ": restored")
-            else:
-                print(i, ": filed to restore")
+def folder_create():
+    if not config_path.exists():
+        print("No config file found! Run setup first.")
+        return
+    with open(config_path, "r") as f:
+        try:
+            conf = json.load(f)
+        except Exception as e:
+            print(f"Error loading config: {e}")
+            return
+    work_path = conf.get("work_path")
+    if not work_path:
+        print("No work_path in config!")
+        return
+    for folder in folders:
+        folder_path = os.path.join(work_path, folder)
+        if not os.path.isdir(folder_path):
+            try:
+                os.makedirs(folder_path, exist_ok=True)
+                print(f"Created: {folder_path}")
+            except Exception as e:
+                print(f"Failed to create {folder_path}: {e}")
         else:
-            print(i, ": exist")
+            print(f"Exists: {folder_path}")
+    print("Folder creation complete.")
+### --end ###
 
-def wireguard_start_F():
-    subprocess.run(["sudo", "wg-quick", "up", "wg0"])
-    print("WireGuard started")
-
-def wireguard_stop_F():
-    subprocess.run(["sudo", "wg-quick", "down", "wg0"])
-    print("WireGuard stopped")
-
-def wireguard_status_F():
-    subprocess.run(["sudo", "wg", "show"])
-
-
-def main_F():
-    if not passwd_path.exists():
-        print("please create password is not safety")
-        passwd_F()
+#Cmd
+def Cmd_Module():
+    if not config_path.exists():
+        setup()
     
-    print("-H to help")
+    print("-H | help")
     while True:
-        cmd = input(">> ")
+        cmd = input("> ")
 
         if cmd == "-H":
             print("""
-            !!!Logs be saved and overwrited on server.log if there information what you need please copy logs!!!
-            
-            --Flask 
-            server start        | start server press two times Return
-            server stop         | stop server
-            server status       | show server status
-                  
-            passwd              | change password 
-            
-            files check         | check if all directories in medea/ exist
-            files restore       | make directories if some does not exist
-            
-            -X, CTRL+C          | stop main.py !!!if server worked when you stop manager server will don't stop!!! 
+            !!! When you start cloud there be created 'flask.log' where you can see flask logs and it be all time overwtited !!!
+            cloud start        | start cloud
+            cloud stop         | stop cloud
+            cloud status       | show cloud status
+            passwd             | change password
+            folder check       | scan media directory to needed folders for work
+            folder create      | create needed directories in media foder
+            -X                 | stop program
             """)
-        elif cmd == "server start":
-            sart_server_F()
-        elif cmd == "server stop":
-            stop_server_F()
-        elif cmd == "server status":
-            status_server_F()
-        elif cmd == "files check":
-            file_check_F()
-        elif cmd == "files restore":
-            file_restore_F()
         elif cmd == "passwd":
-            passwd_F()
+            passwd()
+        elif cmd == "cloud start":
+            cloud_start()
+        elif cmd == "cloud stop":
+            cloud_stop()
+        elif cmd == "cloud status":
+            cloud_status()
+        elif cmd == "folder check":
+            folder_checker()
+        elif cmd == "folder create":
+            folder_create()
         elif cmd == "-X":
             break
         else:
-            print(f"no such comand as: {cmd}", "type -H for help", sep=os.linesep)
+            print(f"no such command as: {cmd}")
+### --end ###
 
+# Oth #
 if __name__ == "__main__":
-    main_F()
+    Cmd_Module()
