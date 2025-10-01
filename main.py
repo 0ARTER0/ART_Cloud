@@ -77,18 +77,6 @@ def file_restore_F():
         else:
             print(i, ": exist")
 
-def wireguard_start_F():
-    subprocess.run(["sudo", "wg-quick", "up", "wg0"])
-    print("WireGuard started")
-
-def wireguard_stop_F():
-    subprocess.run(["sudo", "wg-quick", "down", "wg0"])
-    print("WireGuard stopped")
-
-def wireguard_status_F():
-    subprocess.run(["sudo", "wg", "show"])
-
-
 def main_F():
     if not passwd_path.exists():
         print("please create password is not safety")
