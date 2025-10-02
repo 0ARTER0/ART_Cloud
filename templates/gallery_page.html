@@ -21,7 +21,7 @@
       <h3>Filter</h3>
       <p><a href="{{ url_for('gallery', filter='images') }}">Images</a></p>
       <p><a href="{{ url_for('gallery', filter='video') }}">Videos</a></p>
-      <p><a href="{{ url_for('gallery', filter='audio') }}">Audios</a></p>
+  <p><a href="{{ url_for('gallery', filter='music') }}">Music</a></p>
       <h3>Size</h3>
       <select id="sizeFilter" onchange="changeSize()">
         <option value="normal">Normal</option>
@@ -35,7 +35,7 @@
         <h3>Images</h3>
         {% for img in images %}
           <div class="media-item">
-            <a href="{{ url_for('media_player', folder='images', filename=img) }}">
+            <a href="{{ url_for('viewer', folder='images', filename=img) }}">
               <img src="{{ url_for('media_file', folder='images', filename=img) }}" class="normal">
             </a>
           </div>
@@ -45,17 +45,17 @@
         <h3>Videos</h3>
         {% for vid in videos %}
           <div class="media-item">
-            <a href="{{ url_for('media_player', folder='video', filename=vid) }}">
+            <a href="{{ url_for('viewer', folder='video', filename=vid) }}">
               <video src="{{ url_for('media_file', folder='video', filename=vid) }}" class="normal"></video>
             </a>
           </div>
         {% endfor %}
       {% endif %}
-      {% if audios %}
-        <h3>Audios</h3>
-        {% for aud in audios %}
+      {% if music %}
+        <h3>Music</h3>
+        {% for aud in music %}
           <div class="media-item">
-            <a href="{{ url_for('media_player', folder='audio', filename=aud) }}">
+            <a href="{{ url_for('viewer', folder='music', filename=aud) }}">
               🎵 {{ aud }}
             </a>
           </div>

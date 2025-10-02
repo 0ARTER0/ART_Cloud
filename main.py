@@ -74,11 +74,32 @@ def passwd():
 
 def cloud_start():
     global cloud_proc
-    if cloud_proc and cloud_proc.poll() is None:
-        cloud_proc.terminate()
-        print("cloud is topped")
-    else:
-        print("cloud is not running")
+    # Check if app.py is already running
+    try:
+        import psutil
+    except ImportError:
+        print("psutil not installed. Installing...")
+        import subprocess as sp
+        sp.check_call(["python3", "-m", "pip", "install", "psutil"])
+        import psutil
+
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if proc.info['cmdline'] and 'app.py' in proc.info['cmdline']:
+                print("Cloud is already running (app.py found).")
+                return
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
+
+    log_file = open("flask.log", "w")
+    try:
+        cloud_proc = subprocess.Popen([
+            "python3", "app.py"
+        ], stdout=log_file, stderr=subprocess.STDOUT)
+        print("Cloud started. Logs in flask.log.")
+    except Exception as e:
+        print(f"Failed to start cloud: {e}")
+        log_file.close()
 
 def cloud_stop():
     global cloud_proc
