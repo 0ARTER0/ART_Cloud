@@ -60,7 +60,7 @@ def lock_page():
             session["authenticated"] = True
             return redirect(url_for("main_page"))
         else:
-            error = "❌ Невірний пароль"
+            error = " wrong password!"
     return render_template("lock_page.html", error=error)
 
 @app.route("/home")
