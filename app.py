@@ -1,44 +1,21 @@
+#############
+### Cloud ###
+#############
 
+## Imports ##
 import os
 import json
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
-from functools import wraps
+from flask import Flask, render_template, url_for
+## END ##
 
-# Load config.json for password and media path
-CONFIG_PATH = Path("config.json")
-FOLDERS = ["music", "video", "images", "files"]
-
-def load_config():
-    if CONFIG_PATH.exists():
-        with open(CONFIG_PATH, "r") as f:
-            return json.load(f)
-    return {}
-
-def get_password():
-    conf = load_config()
-    return conf.get("password", "")
-
-def get_media_dir():
-    conf = load_config()
-    return Path(conf.get("work_path", "media"))
-
-def password_exists():
-    return bool(get_password())
-
+## Variables ##
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "fallback_key_for_dev")
+## END ##
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not password_exists():
-            return "Password not created, create config in main.py by starting it!"
-        if not session.get("authenticated"):
-            return redirect(url_for("lock_page"))
-        return f(*args, **kwargs)
-    return decorated_function
+## Pages ##
 
+<<<<<<< Updated upstream
 @app.before_request
 def require_password_and_login():
     endpoint = request.endpoint or ""
@@ -111,8 +88,11 @@ def viewer(folder, filename):
 def logout():
     session.clear()
     return redirect(url_for("lock_page"))
+=======
+## END
+>>>>>>> Stashed changes
 
+## Oth ##
 if __name__ == "__main__":
-    conf = load_config()
-    port = int(conf.get("flask_port", 5000)) if "flask_port" in conf else 5000
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=5000)
+## END ##
