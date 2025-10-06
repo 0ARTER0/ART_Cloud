@@ -1,107 +1,102 @@
-###Imports ###
+#####################
+### Cloud Manager ###
+#####################
+
+## Imports ##
 import os
+import json
 import readline
 import subprocess
-import json
 from pathlib import Path
 from getpass import getpass
-### --end ###
+## END ##
 
-### Variables ###
+## Variabless ##
+#proces
 cloud_proc = None
 
-config_path = Path('config.json')
+#setup config
+setup_path = Path("setup.json")
 
-folders = ["music", "video", "images", "files"]
-## --end ###
+#standart folders
+folders = ["images", "videos", "audios", "files"]
+## END ##
 
-### Tasks ###
-def setup():
-    print("configure setup", f"you need to make somewhere folder with name 'media' and in this folder you need to make a {folders} or make after setup by command", sep=os.linesep)
-    work_path = input("Enter folder for media: ").strip()
-    port = input("set port(if you want default type 5000): ")
+
+## Functios setuppers ##
+def passwd_F():
+    print("making password", "password need to be len(password) > 8", sep=os.linesep)
     while True:
-        password = getpass("password (bigger that len(urpassword) <= 8): ").strip()
-        if len(password) > 8:
-            password_sec = getpass("you need enter password twice: ")
-            if password_sec == password:
-                config = {
-                    "work_path": work_path,
-                    "password": password,
-                }
-
-                with open("config.json", "w") as f:
-                    json.dump(config, f, indent=4)
-                    f.close()
+        passwd_first_gtt = getpass("> ")
+        if len(passwd_first_gtt) > 8:
+            print("same password again")
+            passwd_sec_gtt = getpass("> ")
+            if passwd_sec_gtt == passwd_first_gtt:
+                with open(setup_path, "r+") as jsn:
+                    data = json.load(jsn)
                 
-                if config_path.exists():
-                    print("You done!")
-                    return
+                    data["password"] = passwd_first_gtt
+
+
+                    jsn.seek(0)
+                    json.dump(data, jsn)
+                    jsn.truncate()
+                    jsn.close()
+
+                return
             else:
-                print("password not same!!! Do Again")
+                print("same passwords!")
         else:
-            print("Password must be bigger that len(urpassword) <= 8")
+            print("make longer password")
 
-def passwd():
-    print("Password changer")
-    with open(config_path, "r") as f:
-        try:
-            conf = json.load(f)
-        except Exception as e:
-            print(f"Error loading config: {e}")
-            return
 
+def setup_F():
+    print("hello its setup for ART_Cloud", "for first enter work path(empty path, please)", sep=os.linesep)
     while True:
-        print("Type new password (len > 8):")
-        fir_passwd = getpass(": ").strip()
-        if len(fir_passwd) > 8:
-            print("Type same password again:")
-            sec_passwd = getpass(": ").strip()
-            if sec_passwd == fir_passwd:
-                conf["password"] = fir_passwd
-                try:
-                    with open(config_path, "w") as f:
-                        json.dump(conf, f, indent=4)
-                    print("Done! Password changed.")
-                except Exception as e:
-                    print(f"Error saving config: {e}")
-                return
-            else:
-                print("Passwords do not match! Try again.")
+        work_path_i = input("> ")
+        if Path(work_path_i).exists():
+            print("Good!")
+            setupic = {
+                        "password": "none",
+                        "work_path": work_path_i,
+                    }
+
+            with open(setup_path, "w") as jsn:
+                json.dump(setupic, jsn, indent=4)
+                jsn.close()
+                
+                if setup_path.exists():
+                    print("ALL done")
+                    return passwd_F()
+                else:      
+                    print("something wrong with making setup file")
         else:
-            print("Password must be longer than 8 characters.")
+            print("No path!", "please  ", sep=os.linesep)
+## END ##
 
 
-def cloud_start():
+## Functios commands ##
+def cloud_start_F():
     global cloud_proc
-    # Check if app.py is already running
-    try:
-        import psutil
-    except ImportError:
-        print("psutil not installed. Installing...")
-        import subprocess as sp
-        sp.check_call(["python3", "-m", "pip", "install", "psutil"])
-        import psutil
+    if cloud_proc is None or cloud_proc.poll() is not None:
+        cloud_proc = subprocess.Popen(
+            ["python3", "app.py"], 
+            stdout = open("flask.log", "w", encoding="utf-8", buffering=1), 
+            stderr = subprocess.STDOUT,
+            text=None
+            )
+        print("cloud starter")
+    else:
+        print("failed to start", "check is cloud started with command: cloud status", sep=os.linesep)
 
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-        try:
-            if proc.info['cmdline'] and 'app.py' in proc.info['cmdline']:
-                print("Cloud is already running (app.py found).")
-                return
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            continue
+def cloud_stop_F():
+    global cloud_proc
+    if cloud_proc and cloud_proc.poll() is None:
+        print("cloud is running")
+    else:
+        print("cloud is not running")
 
-    log_file = open("flask.log", "w")
-    try:
-        cloud_proc = subprocess.Popen([
-            "python3", "app.py"
-        ], stdout=log_file, stderr=subprocess.STDOUT)
-        print("Cloud started. Logs in flask.log.")
-    except Exception as e:
-        print(f"Failed to start cloud: {e}")
-        log_file.close()
-
-def cloud_stop():
+def cloud_status_F():
     global cloud_proc
     if cloud_proc and cloud_proc.poll() is None:
         cloud_proc.terminate()
@@ -109,19 +104,11 @@ def cloud_stop():
     else:
         print("cloud is not running")
 
-def cloud_status():
-    global cloud_proc
-    if cloud_proc and cloud_proc.poll() is None:
-        print("cloud is running")
-    else:
-        print("cloud is not running")
-
-
-def folder_checker():
-    if not config_path.exists():
+def folders_check_F():
+    if not setup_path.exists():
         print("No config file found! Run setup first.")
         return
-    with open(config_path, "r") as f:
+    with open(setup_path, "r") as f:
         try:
             conf = json.load(f)
         except Exception as e:
@@ -131,24 +118,18 @@ def folder_checker():
     if not work_path:
         print("No work_path in config!")
         return
-    all_exist = True
     for folder in folders:
         folder_path = os.path.join(work_path, folder)
         if not os.path.isdir(folder_path):
             print(f"Missing folder: {folder_path}")
-            all_exist = False
         else:
             print(f"Exists: {folder_path}")
-    if all_exist:
-        print("All required folders exist.")
-    else:
-        print("Some required folders are missing.")
 
-def folder_create():
-    if not config_path.exists():
+def folders_create_F():
+    if not setup_path.exists():
         print("No config file found! Run setup first.")
         return
-    with open(config_path, "r") as f:
+    with open(setup_path, "r") as f:
         try:
             conf = json.load(f)
         except Exception as e:
@@ -168,21 +149,21 @@ def folder_create():
                 print(f"Failed to create {folder_path}: {e}")
         else:
             print(f"Exists: {folder_path}")
-    print("Folder creation complete.")
-### --end ###
+## END ##
 
-#Cmd
-def Cmd_Module():
-    if not config_path.exists():
-        setup()
+
+## Command Line ##
+def CL():
+    if not setup_path.exists():
+        setup_F()
     
     print("-H | help")
     while True:
-        cmd = input("> ")
+        cl_i = input("> ")
 
-        if cmd == "-H":
+        if cl_i == "-H":
             print("""
-            !!! When you start cloud there be created 'flask.log' where you can see flask logs and it be all time overwtited !!!
+            !!! When you start cloud there be created 'flask.log' where you can see flask logs and it be overwtited if you restart cloud!!!
             cloud start        | start cloud
             cloud stop         | stop cloud
             cloud status       | show cloud status
@@ -191,24 +172,26 @@ def Cmd_Module():
             folder create      | create needed directories in media foder
             -X                 | stop program
             """)
-        elif cmd == "passwd":
-            passwd()
-        elif cmd == "cloud start":
-            cloud_start()
-        elif cmd == "cloud stop":
-            cloud_stop()
-        elif cmd == "cloud status":
-            cloud_status()
-        elif cmd == "folder check":
-            folder_checker()
-        elif cmd == "folder create":
-            folder_create()
-        elif cmd == "-X":
+        elif cl_i == "passwd":
+            passwd_F()
+        elif cl_i == "cloud start":
+            cloud_start_F()
+        elif cl_i == "cloud stop":
+            cloud_stop_F()
+        elif cl_i == "cloud status":
+            cloud_status_F()
+        elif cl_i == "folder check":
+            folders_check_F()
+        elif cl_i == "folder create":
+            folder_create_()
+        elif cl_i == "-X":
             break
         else:
-            print(f"no such command as: {cmd}")
-### --end ###
+            print(f"no such command as: {cl_i}")
+## END ##
 
-# Oth #
-if __name__ == "__main__":
-    Cmd_Module()
+
+## Oth ##
+if __name__ == ("__main__"):
+    CL()
+## END ##
