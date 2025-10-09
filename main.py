@@ -22,7 +22,6 @@ setup_path = Path("setup.json")
 folders = ["images", "videos", "audios", "files"]
 ## END ##
 
-
 ## Functios setuppers ##
 def passwd_F():
     print("making password", "password need to be len(password) > 8", sep=os.linesep)
@@ -32,23 +31,22 @@ def passwd_F():
             print("same password again")
             passwd_sec_gtt = getpass("> ")
             if passwd_sec_gtt == passwd_first_gtt:
-                with open(setup_path, "r+") as jsn:
-                    data = json.load(jsn)
+                with open(setup_path, "r+") as j:
+                    data = json.load(j)
                 
                     data["password"] = passwd_first_gtt
 
 
-                    jsn.seek(0)
-                    json.dump(data, jsn)
-                    jsn.truncate()
-                    jsn.close()
+                    j.seek(0)
+                    json.dump(data, j)
+                    j.truncate()
+                    j.close()
 
                 return
             else:
                 print("same passwords!")
         else:
             print("make longer password")
-
 
 def setup_F():
     print("hello its setup for ART_Cloud", "for first enter work path(empty path, please)", sep=os.linesep)
@@ -61,9 +59,9 @@ def setup_F():
                         "work_path": work_path_i,
                     }
 
-            with open(setup_path, "w") as jsn:
-                json.dump(setupic, jsn, indent=4)
-                jsn.close()
+            with open(setup_path, "w") as j:
+                json.dump(setupic, j, indent=4)
+                j.close()
                 
                 if setup_path.exists():
                     print("ALL done")
@@ -73,7 +71,6 @@ def setup_F():
         else:
             print("No path!", "please  ", sep=os.linesep)
 ## END ##
-
 
 ## Functios commands ##
 def cloud_start_F():
@@ -105,57 +102,56 @@ def cloud_status_F():
         print("cloud is not running")
 
 def folders_check_F():
-    if not setup_path.exists():
-        print("No config file found! Run setup first.")
-        return
-    with open(setup_path, "r") as f:
-        try:
-            conf = json.load(f)
-        except Exception as e:
-            print(f"Error loading config: {e}")
-            return
-    work_path = conf.get("work_path")
-    if not work_path:
-        print("No work_path in config!")
-        return
+    with open(setup_path, "r") as j:
+        work_path_stb = json.load(j)
+    
+    work_path_v = work_path_stb.get("work_path")
+
     for folder in folders:
-        folder_path = os.path.join(work_path, folder)
+        folder_path = os.path.join(work_path_v, folder)
         if not os.path.isdir(folder_path):
-            print(f"Missing folder: {folder_path}")
+            print(folder_path, ": not exist")
         else:
-            print(f"Exists: {folder_path}")
+            print(folder_path, "exist")
 
 def folders_create_F():
-    if not setup_path.exists():
-        print("No config file found! Run setup first.")
-        return
-    with open(setup_path, "r") as f:
-        try:
-            conf = json.load(f)
-        except Exception as e:
-            print(f"Error loading config: {e}")
-            return
-    work_path = conf.get("work_path")
-    if not work_path:
-        print("No work_path in config!")
-        return
+    with open(setup_path, "r") as j:
+        work_path_stb = json.load(j)
+
+    work_path_v = work_path_stb.get("work_path")
+
     for folder in folders:
-        folder_path = os.path.join(work_path, folder)
+        folder_path = os.path.join(work_path_v, folder)
         if not os.path.isdir(folder_path):
             try:
                 os.makedirs(folder_path, exist_ok=True)
-                print(f"Created: {folder_path}")
+                print(folder_path, ": created")
             except Exception as e:
-                print(f"Failed to create {folder_path}: {e}")
+                print(f"can't create : {folder_path}")
         else:
-            print(f"Exists: {folder_path}")
+            print(folder_path, ": exist")
 ## END ##
-
 
 ## Command Line ##
 def CL():
     if not setup_path.exists():
         setup_F()
+    else:
+        print("checking only on start, if something is wrong try to restart main.py or restart cloud")
+        with open(setup_path, "r") as j:
+            data = json.load(j)
+        print("check password...")
+        if data["password"] == "none" or data["password"] == "":
+            print("no password", "create it", sep=os.linesep)
+            passwd_F()
+        else:
+            print("password here", "check the work path...", sep=os.linesep)
+        if Path(data["work_path"]).exists():
+            print("work path exists")
+        else:
+            print("you remake your setup sonfig even with your password")
+            setup_F()
+    
     
     print("-H | help")
     while True:
@@ -189,7 +185,6 @@ def CL():
         else:
             print(f"no such command as: {cl_i}")
 ## END ##
-
 
 ## Oth ##
 if __name__ == ("__main__"):

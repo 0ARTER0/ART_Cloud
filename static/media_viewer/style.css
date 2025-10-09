@@ -1,0 +1,72 @@
+:root {
+  --bg-dark: #2b2b2b;
+  --bg-darker: #1e1e1e;
+  --accent: #4f9a4f;
+  --text: #f0f0f0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text);
+  font-family: monospace;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.center-box {
+  border: 2px solid var(--accent);
+  padding: 2rem;
+  background-color: var(--bg-darker);
+  max-width: 90%;
+  max-height: 90%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.media-content {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 1rem 0;
+  border: 1px solid var(--accent);
+  background-color: #000;
+}
+
+.nav-links a {
+  display: inline-block;
+  margin: 0.5rem 1rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+.text-preview {
+  width: 100%;
+  max-height: 70vh;
+  overflow: auto;
+  text-align: left;
+}
+
+.text-content {
+  white-space: pre-wrap;
+  background: #0f0f0f;
+  color: var(--text);
+  padding: 1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(79,154,79,0.25);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+  font-size: 0.95rem;
+}
