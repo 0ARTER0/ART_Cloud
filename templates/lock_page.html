@@ -1,20 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Login</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='lock_page/style.css') }}">
-    </head>
-    <body>
-        <div class="center-box">
-            <h2>ART Cloud Login</h2>
-                {% if error %}
-                    <p class="error">{{ error }}</p>
-                {% endif %}
-                <form method="post">
-                <input type="password" name="password" placeholder="Enter password" autofocus>
-                <input type="submit" value="Login">
-            </form>
-        </div>
-    </body>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='lock_page/style.css') }}">
+		<script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+		<title>Locked - Art Cloud</title>
+	</head>
+	<body>
+		<header>
+			<h1>Art Cloud — Locked</h1>
+			<div>
+				<button onclick="toggleTheme()">Toggle Theme</button>
+			</div>
+		</header>
+		{% if error %}
+			<p class="error">{{ error }}</p>
+		{% endif %}
+		<form method="post" action="{{ url_for('login') }}">
+			<label>Password: <input type="password" name="password" autofocus></label>
+			<button type="submit">Unlock</button>
+		</form>
+	</body>
 </html>
