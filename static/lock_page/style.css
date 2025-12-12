@@ -1,36 +1,103 @@
-:root {
-  --bg-dark: #2b2b2b;
-  --accent: #4f9a4f;
-  --text: #f0f0f0;
+/* Center the unlock form on the page without using floats */
+html, body {
+    height: 100%;
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text);
-  font-family: monospace;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center horizontally */
+    background: var(--bg);
 }
 
-.center-box {
-  border: 2px solid var(--accent);
-  padding: 2rem;
-  background-color: #1e1e1e;
-  min-width: 300px;
-  text-align: center;
+/* Keep header full-width and left-aligned while form stays centered */
+header {
+    align-self: stretch; /* allow header to span full width */
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    gap: 12px;
 }
 
-.center-box a {
-  display: block;
-  margin: 1rem 0;
-  color: var(--accent);
-  text-decoration: none;
-  font-size: 1.2rem;
+header h1 {
+    margin: 0;
+    font-size: 18px;
+    text-align: left;
 }
 
-.center-box a:hover {
-  text-decoration: underline;
+/* Keep header at top; the form will center itself with margin:auto */
+form {
+    margin: auto; /* centers vertically and horizontally (with body align-items:center) */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    min-width: 300px;
+    max-width: 420px;
+    width: 90%;
+    /* use the page background and subtle border so panel looks normal */
+    background: rgba(255,255,255,0.01);
+    border: 1px solid rgba(255,255,255,0.04);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+
+form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+input[type="password"] {
+    padding: 10px 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.02);
+    color: var(--text);
+    font-size: 16px;
+}
+
+input[type="password"]::placeholder {
+    color: rgba(255,255,255,0.45);
+}
+
+input[type="password"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(129, 0, 161, 0.12);
+    border-color: var(--accent);
+}
+
+button[type="submit"] {
+    padding: 8px 14px;
+    align-self: center;
+    background: rgb(129, 0, 161);
+    color: var(--text);
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button[type="submit"]:hover,
+button[type="submit"]:focus {
+    opacity: 0.95;
+}
+
+/* Responsive tweak for very small screens */
+@media (max-width: 360px) {
+    form {
+        padding: 14px;
+    }
+    input[type="password"] {
+        font-size: 15px;
+    }
 }
