@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='settings_page/style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>Settings</h1>
+      <div>
+        <a href="{{ url_for('main') }}">Back to Main</a>
+        <button onclick="toggleTheme()">Theme</button>
+      </div>
+    </header>
+    
+    {% if success %}
+      <p class="success">✓ {{ success }}</p>
+    {% endif %}
+    {% if error %}
+      <p class="error">✗ {{ error }}</p>
+    {% endif %}
+
+    <main class="container">
+    <!-- Change Password Section -->
+    <section class="settings-panel">
+      <h2>Change Password</h2>
+      <form method="post">
+        <input type="hidden" name="action" value="change_password">
+        <div class="settings-grid">
+          <div>
+            <label class="field">Old Password
+              <input class="field-input" type="password" name="old_password" required>
+            </label>
+            <label class="field">New Password
+              <input class="field-input" type="password" name="new_password" required>
+            </label>
+            <label class="field">Confirm New Password
+              <input class="field-input" type="password" name="new_password_confirm" required>
+            </label>
+          </div>
+          <div>
+            <div class="note">Choose a strong password. Use letters, numbers, and symbols.</div>
+            <div class="btn-row">
+              <button class="btn primary" type="submit">Change Password</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Update Paths Section -->
+    <section class="settings-panel">
+      <h2>Media Paths</h2>
+      <form method="post">
+        <input type="hidden" name="action" value="update_paths">
+        <div class="settings-grid">
+          <div>
+            {% for mtype in ['videos', 'images', 'audios', 'documents', 'other'] %}
+              <label class="field">{{ mtype|capitalize }} Path
+                <input class="field-input" type="text" name="path_{{ mtype }}" value="{{ paths.get(mtype, '') }}">
+              </label>
+            {% endfor %}
+          </div>
+          <div>
+            <div class="note">Set the folder paths where the application should look for each media type.</div>
+            <div class="btn-row">
+              <button class="btn primary" type="submit">Update Paths</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Update Formats Section -->
+    <section class="settings-panel">
+      <h2>Supported Formats</h2>
+      <p class="note">Enter file extensions comma-separated (e.g., .mp4,.mkv,.avi)</p>
+      <form method="post">
+        <input type="hidden" name="action" value="update_formats">
+        <div class="settings-grid">
+          <div>
+            {% for mtype in ['videos', 'images', 'audios', 'documents', 'other'] %}
+              <label class="field">{{ mtype|capitalize }}
+                <textarea class="field-input" name="formats_{{ mtype }}">{% if formats.get(mtype) %}{{ formats.get(mtype)|join(',') }}{% endif %}</textarea>
+              </label>
+            {% endfor %}
+          </div>
+          <div>
+            <div class="note">Use comma-separated extensions (include the dot). Example: .jpg,.png</div>
+            <div class="btn-row">
+              <button class="btn primary" type="submit">Update Formats</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+    </main>
+  </body>
+</html>

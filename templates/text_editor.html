@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Document - {{ filename }}</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='text_editor/style.css') }}">
+		<script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+	</head>
+	<body>
+		<header>
+			<h1>{{ filename }}</h1>
+			<div>
+				<a href="{{ url_for('main') }}">← Back</a>
+				<button onclick="toggleTheme()">Theme</button>
+			</div>
+		</header>
+
+		<div id="view-container" class="view-container">
+			<div id="view-content" class="view-content">{{ content }}</div>
+		</div>
+
+		<textarea id="edit-textarea" class="edit-textarea">{{ content }}</textarea>
+
+		<footer>
+			<button id="save-btn" class="editor-btn" onclick="saveFile()">Save (Ctrl+S)</button>
+			<button id="cancel-btn" class="editor-btn" onclick="exitEdit()">Cancel (ESC)</button>
+			<button onclick="downloadFile()">Download</button>
+			<span class="info" id="status-msg"></span>
+		</footer>
+
+		<script>
+			let isEditMode = false;
+			const viewContainer = document.getElementById('view-container');
+			const viewContent = document.getElementById('view-content');
+			const textarea = document.getElementById('edit-textarea');
+			const modeLabel = document.getElementById('mode-label');
+			const savBtn = document.getElementById('save-btn');
+			const cancelBtn = document.getElementById('cancel-btn');
+			const statusMsg = document.getElementById('status-msg');
+
+			function downloadFile() {
+				const link = document.createElement('a');
+				link.href = '{{ url_for("media_file", media_type="documents", filename=filename) }}';
+				link.download = '{{ filename }}';
+				link.click();
+			}
+
+			function enterEditMode() {
+				isEditMode = true;
+				viewContainer.style.display = 'none';
+				textarea.style.display = 'block';
+				textarea.focus();
+				modeLabel.textContent = 'EDIT';
+				savBtn.style.display = 'inline-block';
+				cancelBtn.style.display = 'inline-block';
+				statusMsg.textContent = '';
+			}
+
+			function exitEdit() {
+				isEditMode = false;
+				textarea.style.display = 'none';
+				viewContainer.style.display = 'block';
+				modeLabel.textContent = 'VIEW';
+				savBtn.style.display = 'none';
+				cancelBtn.style.display = 'none';
+				textarea.value = viewContent.textContent;
+				statusMsg.textContent = '';
+			}
+
+			function saveFile() {
+				const newContent = textarea.value;
+				statusMsg.textContent = 'Saving...';
+				
+				const formData = new FormData();
+				formData.append('content', newContent);
+
+				fetch('{{ url_for("save_document", filename=filename) }}', {
+					method: 'POST',
+					body: formData
+				})
+				.then(response => {
+					if (response.ok) {
+						viewContent.textContent = newContent;
+						statusMsg.textContent = '✓ File saved successfully';
+						exitEdit();
+					} else {
+						statusMsg.textContent = '✗ Failed to save file';
+					}
+				})
+				.catch(error => {
+					statusMsg.textContent = '✗ Error: ' + error;
+				});
+			}
+
+			document.addEventListener('keydown', (e) => {
+				// Press 'i' to enter edit mode
+				if (e.key === 'i' && !isEditMode && e.target === document.body) {
+					e.preventDefault();
+					enterEditMode();
+				}
+				// Press 'Escape' to exit edit mode
+				if (e.key === 'Escape' && isEditMode) {
+					e.preventDefault();
+					exitEdit();
+				}
+				// Ctrl+S or Cmd+S to save
+				if ((e.ctrlKey || e.metaKey) && e.key === 's' && isEditMode) {
+					e.preventDefault();
+					saveFile();
+				}
+			});
+		</script>
+	</body>
+</html>
+

@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>View Media - {{ filename }}</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='media_view_page/style.css') }}">
+		<script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+	</head>
+	<body class="media-view">
+		<header>
+			<h1>{{ filename }}</h1>
+			<div>
+				<a href="{{ url_for('main') }}">← Back</a>
+				<button onclick="toggleTheme()">Theme</button>
+			</div>
+		</header>
+		<main class="media-container">
+			{% if media_type == 'images' %}
+				<img src="{{ media_url }}" alt="{{ filename }}" class="media-display">
+			{% elif media_type == 'videos' %}
+				<video controls class="media-display">
+					<source src="{{ media_url }}">
+					Your browser does not support the video tag.
+				</video>
+			{% else %}
+				<p>Unsupported view type.</p>
+			{% endif %}
+
+			<div class="controls">
+				<button class="btn primary" onclick="downloadFile()">Download</button>
+			</div>
+		</main>
+		
+		<script>
+			function downloadFile() {
+				const link = document.createElement('a');
+				link.href = '{{ url_for("media_file", media_type=media_type, filename=filename) }}';
+				link.download = '{{ filename }}';
+				link.click();
+			}
+		</script>
+	</body>
+</html>
+
