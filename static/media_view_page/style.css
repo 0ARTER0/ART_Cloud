@@ -1,0 +1,81 @@
+/* Media view page: media fills available area, page itself doesn't scroll */
+.media-view, html, body {
+    height: 100%;
+}
+
+/* When body has .media-view, lock the page to prevent scrolling
+   and let the media container handle overflow. Use position:fixed
+   to ensure no browser scrollbar appears. */
+body.media-view {
+    margin: 0 !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100% !important;
+    background: var(--bg);
+    color: var(--text);
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+}
+
+.media-container {
+    margin-top: var(--header-height);
+    height: calc(100vh - var(--header-height));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow: auto; /* allow media to be panned/zoomed if larger */
+    padding: 12px;
+}
+
+.media-display {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.06);
+}
+
+/* Make video fill while preserving aspect ratio */
+.media-display[type="video"], video.media-display {
+    width: 100%;
+    height: auto;
+    max-height: calc(100vh - var(--header-height) - 40px);
+}
+
+.controls {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 80;
+}
+
+.controls .btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: var(--accent);
+    color: var(--bg);
+    cursor: pointer;
+}
+
+@media (max-width: 700px) {
+    .controls { right: 12px; bottom: 12px; }
+    .media-display { max-height: calc(100vh - var(--header-height) - 20px); }
+}
