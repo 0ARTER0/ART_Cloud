@@ -1,0 +1,104 @@
+<!doctype html>
+	<head>
+		<meta charset="utf-8">
+		<title>Main - Art Cloud</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='main_page/style.css') }}">
+		<script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+	</head>
+	<body>
+	<header>
+		<h1>Art Cloud</h1>
+		<div>
+			<a href="{{ url_for('logout') }}">Logout</a>
+			|
+			<a href="{{ url_for('settings_page') }}">Settings</a>
+			<button onclick="toggleTheme()">Theme</button>
+		</div>
+	</header>
+
+	<div class="main-container">
+		<!-- Sidebar Filters -->
+		<aside class="sidebar">
+			<div class="sidebar-section">
+				<h3>Filter By Type</h3>
+				<div class="filter-container">
+					<button class="filter-btn active" onclick="filterMedia('all', this)">All</button>
+					<button class="filter-btn" onclick="filterMedia('videos', this)">Videos</button>
+					<button class="filter-btn" onclick="filterMedia('images', this)">Images</button>
+					<button class="filter-btn" onclick="filterMedia('audios', this)">Audios</button>
+					<button class="filter-btn" onclick="filterMedia('documents', this)">Documents</button>
+					<button class="filter-btn" onclick="filterMedia('other', this)">Other</button>
+				</div>
+			</div>
+		</aside>
+
+		<!-- Main Content -->
+		<div class="content">
+			{% if not media %}
+				<p>No media configured.</p>
+			{% else %}
+				{% for mtype, items in media.items() %}
+					<section class="media-section" data-type="{{ mtype }}">
+						<h2>{{ mtype|capitalize }} ({{ items|length }})</h2>
+						{% if items %}
+							<ul class="media-list">
+								{% for it in items %}
+									<li class="media-item">
+										{% if mtype == 'images' %}
+											<a href="{{ url_for('view_media', media_type=mtype, filename=it.name) }}">
+												<img class="media-preview" src="{{ url_for('media_file', media_type=mtype, filename=it.name) }}" alt="{{ it.name }}">
+											</a>
+										{% elif mtype == 'videos' %}
+											<video class="media-preview" src="{{ url_for('media_file', media_type=mtype, filename=it.name) }}" muted preload="metadata" controlslist="nodownload" playsinline></video>
+										{% else %}
+											<div class="media-item-name">{{ it.name }}</div>
+										{% endif %}
+
+										<div class="media-item-links">
+											<a class="btn small view-btn" href="{{ url_for('view_media', media_type=mtype, filename=it.name) }}">View</a>
+											<a class="btn small download-btn" href="{{ url_for('media_file', media_type=mtype, filename=it.name) }}">Download</a>
+										</div>
+									</li>
+								{% endfor %}
+							</ul>
+						{% else %}
+							<p>No files found for {{ mtype }}.</p>
+						{% endif %}
+					</section>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+
+	<script>
+		let currentFilter = 'all';
+
+		function filterMedia(type, el) {
+			currentFilter = type;
+
+			// Update button states
+			document.querySelectorAll('.filter-btn').forEach(btn => {
+				btn.classList.remove('active');
+			});
+			// If caller passed the element, use it; otherwise try to find a matching button
+			if (el && el.classList) {
+				el.classList.add('active');
+			} else {
+				const btn = document.querySelector(`.filter-btn[data-filter="${type}"]`);
+				if (btn) btn.classList.add('active');
+			}
+
+			// Show/hide sections
+			document.querySelectorAll('.media-section').forEach(section => {
+				if (type === 'all' || section.dataset.type === type) {
+					section.classList.remove('hidden');
+				} else {
+					section.classList.add('hidden');
+				}
+			});
+		}
+	</script>
+	</body>
+</html>
+
