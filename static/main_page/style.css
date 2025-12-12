@@ -1,0 +1,183 @@
+
+/* Main page layout: fixed header, fixed left filter rail (top-to-bottom), and scrollable content */
+
+/* Ensure the page doesn't scroll; only the content column scrolls */
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* Fixed header at top */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    z-index: 60;
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+}
+
+/* Main container sits below header and occupies remaining viewport */
+.main-container {
+    display: flex;
+    gap: 20px;
+    width: 100%; /* fill the full viewport width */
+    max-width: none; /* remove centered max-width so .content can expand */
+    margin: 0;
+    padding: 20px;
+    margin-top: var(--header-height); /* push below fixed header */
+    height: calc(100vh - var(--header-height));
+    box-sizing: border-box;
+    overflow: hidden; /* prevent page scrolling */
+    padding-left: 240px; /* leave room for fixed left rail */
+}
+
+/* Left filter rail fixed to viewport left edge */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: var(--header-height);
+    width: 240px;
+    height: calc(100vh - var(--header-height));
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(255,255,255,0.01);
+    border-right: 1px solid rgba(255,255,255,0.02);
+    padding-top: 8px;
+    box-sizing: border-box;
+    z-index: 50;
+    overflow: hidden; /* container doesn't scroll horizontally */
+}
+
+.sidebar-section {
+    margin: 0 8px 8px 8px;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    flex: 1 1 auto; /* fill available vertical space */
+    overflow: auto; /* filters scroll within sidebar when needed */
+}
+
+.filter-btn {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 3px;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    font-size: 13px;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+/* Content column is the only scrollable area */
+.content {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    width: calc(100% - 240px); /* explicitly fill remaining width to right of rail */
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 20px;
+}
+
+.media-section { margin-bottom: 30px; }
+.media-section h2 { border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+
+.media-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+
+/* Position view on left and download on right inside media cards */
+.media-item-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.media-item-links .btn {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.media-item-links .view-btn {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.media-item-links .download-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: 1px solid transparent;
+}
+
+.media-item-links .btn:hover { opacity: 0.95; }
+
+.hidden {
+    display: none !important;
+}
+
+.media-item {
+    background: rgba(255,255,255,0.01);
+    border: 1px solid rgba(255,255,255,0.03);
+    border-radius: 4px;
+    padding: 12px;
+    flex: 0 1 calc(33.333% - 10px);
+    min-width: 200px;
+}
+
+.media-preview {
+    width: 100%;
+    height: 140px;
+    display: block;
+    object-fit: cover;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.05);
+    margin-bottom: 8px;
+}
+
+.media-item .media-item-name {
+    margin: 6px 0 8px 0;
+}
+
+/* Responsive: hide fixed sidebar and let content take full width on small screens */
+@media (max-width: 900px) {
+    .main-container { padding-left: 12px; }
+    .sidebar { display: none; }
+}
+
+@media (max-width: 520px) {
+    .media-item { flex: 0 1 calc(100% - 10px); }
+}
